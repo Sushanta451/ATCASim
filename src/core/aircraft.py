@@ -17,7 +17,7 @@ class Aircraft:
     MAX_VERTICAL_SPEED = 3000     # climb max ft/min
     MIN_VERTICAL_SPEED = -3000    # descent max ft/min
 
-    def __init__(self, x: int, y: int, heading_degrees: int, speed: int, altitude: int):
+    def __init__(self, x: int, y: int, heading_degrees: int, speed , altitude: int):
         self.x = x
         self.y = y
         self.heading_degree = heading_degrees
@@ -43,23 +43,24 @@ class Aircraft:
         # clamp the altitude between 0 and MAX altitude
         self.altitude = max(self.MIN_ALTITUDE, min(target_altitude, self.MAX_ALTITUDE))
 
-    def update(self, last_update_time: float):
-        # calculate movement 
-        rad = math.radians(self.heading_degree)   # convert it into radians (python trig uses radians)
-        dx = math.cos(rad) * self.speed * last_update_time  # cos - horizontal
-        dy = math.sin(rad) * self.speed * last_update_time  # sin - vertical
+    def update(self, dt: float):
+        # Convert aviation heading to math heading
+        rad = math.radians(self.heading_degree - 90)
 
-        # update position of the aircraft 
-        self.x = self.x + dx
-        self.y = self.y + dy
+        # Movement (correct Y direction)
+        dx = math.cos(rad) * self.speed * dt
+        dy = math.sin(rad) * self.speed * dt
 
-        # convert vertical speed (ft/min) into ft/sec
+        self.x += dx
+        self.y += dy
+
+        # Vertical speed ft/min → ft/sec
         altitude_change_persec = self.vertical_speed / 60
+        self.altitude += altitude_change_persec * dt
 
-        self.altitude += altitude_change_persec * last_update_time
-        
-        # clamp altitude
+        # Clamp altitude
         self.altitude = max(self.MIN_ALTITUDE, min(self.altitude, self.MAX_ALTITUDE))
+
 
     # updates the altitude (example - climb 1000 feet, +1000 to original altitude)
     def change_altitude(self, delta_altitude: int):
