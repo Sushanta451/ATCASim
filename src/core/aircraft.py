@@ -15,6 +15,12 @@ class Aircarft:
     def set_heading(self, traget_degree :int):
         self.heading_degree = traget_degree % 360 
     
+    def verticle_speed(self, vs: int):
+        self.verticle_speed = vs
+    
+    def set_altitude(self, target_altitude:int):
+        self.altitude = max(0 , target_altitude)
+
     def update(self, last_update_time :float):
        
         #calculate movement 
@@ -25,14 +31,14 @@ class Aircarft:
         #update postion of the aircraft 
         self.x = self.x + dx
         self.y = self.y + dy
-    
-    def set_altitude(self, target_altitude:int):
-        self.altitude = max(0 , target_altitude)
 
     #updates the alititube( example - climb 1000 feet, + 1000 to the orginal altitude)
     def change_altitude(self, delta_altitude:int):
         new_altitude = self.altitude + delta_altitude
-        max(0, new_altitude)
+        self.altitude = max(0, new_altitude)
+    
+
+
 
 
 
