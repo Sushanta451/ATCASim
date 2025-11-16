@@ -1,4 +1,4 @@
-import math 
+
 
 class Aircraft:
     # max/min altitude limits 
