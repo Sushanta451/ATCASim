@@ -1,11 +1,11 @@
 import math 
 
 class Aircraft:
-    # max/min altitude limits (added)
+    # max/min altitude limits 
     MAX_ALTITUDE = 45000
     MIN_ALTITUDE = 0
     
-    # max/min vertical speed limits (added)
+    # max/min vertical speed limits 
     MAX_VERTICAL_SPEED = 3000     # climb max ft/min
     MIN_VERTICAL_SPEED = -3000    # descent max ft/min
 
@@ -32,8 +32,7 @@ class Aircraft:
     
     def set_altitude(self, target_altitude:int):
         # clamp the altitude between 0 and MAX altitude
-        self.altitude = max(self.MIN_ALTITUDE, 
-                            min(target_altitude, self.MAX_ALTITUDE))
+        self.altitude = max(self.MIN_ALTITUDE, min(target_altitude, self.MAX_ALTITUDE))
 
     def update(self, last_update_time :float):
         # calculate movement 
@@ -52,8 +51,7 @@ class Aircraft:
         self.altitude += altitude_change_persec * last_update_time
         
         # clamp altitude so it never below 0 or above max altitude
-        self.altitude = max(self.MIN_ALTITUDE, 
-                            min(self.altitude, self.MAX_ALTITUDE))
+        self.altitude = max(self.MIN_ALTITUDE, min(self.altitude, self.MAX_ALTITUDE))
 
     # updates the alititube( example - climb 1000 feet, + 1000 to the orginal altitude)
     def change_altitude(self, delta_altitude:int):
