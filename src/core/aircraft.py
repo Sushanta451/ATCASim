@@ -5,7 +5,8 @@ class Aircarft:
         self.heading_degree = heading_degrees
         self.speed = speed
     
-    def turn(self , delta_degree):
+    def turn(self , delta_degree :int ):
         self.heading_degree = (self.heading_degree + delta_degree)% 360
-
-         
+    def set_heading(self, traget_degree :int):
+        self.heading_degree = traget_degree % 360
+    
