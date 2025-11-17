@@ -1,5 +1,7 @@
 import random
 from core.aircraft import Aircraft
+import core.tcas as tcas
+
 
 class TrafficManager:
 
@@ -46,5 +48,26 @@ class TrafficManager:
       altitude = random.randint(5000, 35000)
 
       return Aircraft(x, y, heading, speed, altitude)
+    
+    def remove_aircraft_outside_airspace(self, WIDTH, HEIGHT):
+
+     removing_aircraft_list = []
+
+     for ac in self.planes:
+        if -50 <= ac.x <= WIDTH + 50 and -50 <= ac.y <= HEIGHT + 50:
+            removing_aircraft_list.append(ac)
+
+     self.planes = removing_aircraft_list
+
+    
+    def detect_conflicts(self):
+        return tcas.scan_all(self.planes)
+
+    
+
+    
+        
+          
+
 
 
