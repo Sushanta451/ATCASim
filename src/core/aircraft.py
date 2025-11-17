@@ -1,5 +1,6 @@
 import math
 import random
+import pygame
 
 class Aircraft:
 
@@ -17,17 +18,19 @@ class Aircraft:
     MAX_VERTICAL_SPEED = 3000     # climb max ft/min
     MIN_VERTICAL_SPEED = -3000    # descent max ft/min
 
-    def __init__(self, x: int, y: int, heading_degrees: int, speed , altitude: int):
+    def __init__(self, x: int, y: int, heading_degrees: int, speed, altitude: int):
         self.x = x
         self.y = y
         self.heading_degree = heading_degrees
         self.speed = speed
         self.altitude = altitude
         self.vertical_speed = 0   # starting VS is level flight (0 ft/min)
+
+        # random airline callsign
         self.id = random.choice(self.Airline_company) + str(random.randint(100, 999))
 
     def turn(self, delta_degree: int):
-        # updates the currents aircraft heading
+        # updates the current aircraft heading
         self.heading_degree = (self.heading_degree + delta_degree) % 360 
    
     def set_heading(self, target_degree: int):
@@ -44,7 +47,7 @@ class Aircraft:
         self.altitude = max(self.MIN_ALTITUDE, min(target_altitude, self.MAX_ALTITUDE))
 
     def update(self, dt: float):
-        # Convert aviation heading to math heading
+        # Convert aviation heading to math heading (aviation 0° = North)
         rad = math.radians(self.heading_degree - 90)
 
         # Movement (correct Y direction)
@@ -61,13 +64,27 @@ class Aircraft:
         # Clamp altitude
         self.altitude = max(self.MIN_ALTITUDE, min(self.altitude, self.MAX_ALTITUDE))
 
-
-    # updates the altitude (example - climb 1000 feet, +1000 to original altitude)
     def change_altitude(self, delta_altitude: int):
+        # updates the altitude (example - climb 1000 feet, +1000 to original altitude)
         new_altitude = self.altitude + delta_altitude
         
         # clamp altitude
         self.altitude = max(self.MIN_ALTITUDE, min(new_altitude, self.MAX_ALTITUDE))
+
+    def draw(self, screen, font):
+        # 1. Aircraft dot (green)
+        pygame.draw.circle(screen, (0,255,0), (int(self.x), int(self.y)), 4)
+
+        # 2. Heading line (12px long)
+        rad = math.radians(self.heading_degree - 90)
+        hx = self.x + 12 * math.cos(rad)
+        hy = self.y + 12 * math.sin(rad)
+        pygame.draw.line(screen, (0,255,0), (self.x, self.y), (hx, hy), 2)
+
+        # 3. Callsign and flight level label
+        text = f"{self.id} FL{int(self.altitude // 100)}"
+        label = font.render(text, True, (0,255,0))
+        screen.blit(label, (self.x + 10, self.y - 15))
 
     def __str__(self):
         return (

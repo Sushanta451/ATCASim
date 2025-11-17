@@ -1,5 +1,6 @@
 import pygame
 from core.aircraft import Aircraft
+from core.traffic_manager import TrafficManager
 import math
 
 def main():
@@ -12,14 +13,20 @@ def main():
 
     clock = pygame.time.Clock()
 
-    # Create ONE test aircraft
-    plane = Aircraft(
-        x = WIDTH // 2,     # start in the middle
-        y = HEIGHT // 2,
-        heading_degrees = 0,   # 0 = North (UP)
-        speed = 150,           # pixels per second
-        altitude = 10000
-    )
+    # Radar font for aircraft labels
+    font = pygame.font.SysFont("Arial", 14)
+
+    # Traffic manager holds ALL aircraft
+    traffic = TrafficManager()
+
+    # Spawn 5 aircraft at startup
+    for _ in range(5):
+        new_plane = traffic.spawn_random_plane(WIDTH, HEIGHT)
+        traffic.add_aircraft(new_plane)
+
+    # Timer for continuous traffic spawning
+    spawn_timer = 0
+    spawn_interval = 3  # seconds
 
     running = True
     while running:
@@ -32,10 +39,15 @@ def main():
         # dt = seconds per frame
         dt = clock.tick(60) / 1000.0
 
-        # UPDATE AIRCRAFT PHYSICS
-        plane.update(dt)
+        # UPDATE ALL AIRCRAFT
+        traffic.update(dt)
 
-        print("x:", plane.x, "y:", plane.y, "dt:", dt)
+        # SPAWN NEW AIRCRAFT OVER TIME
+        spawn_timer += dt
+        if spawn_timer >= spawn_interval:
+            spawn_timer = 0
+            new_plane = traffic.spawn_random_plane(WIDTH, HEIGHT)
+            traffic.add_aircraft(new_plane)
 
         # DRAW SCREEN
         screen.fill((0, 0, 0))
@@ -47,17 +59,13 @@ def main():
         pygame.draw.line(screen, (0,100,0), (center_x, 0), (center_x, HEIGHT))
         pygame.draw.line(screen, (0,100,0), (0, center_y), (WIDTH, center_y))
 
-        # Draw aircraft dot
-        pygame.draw.circle(
-            screen,
-            (0, 255, 0),
-            (int(plane.x), int(plane.y)),
-            5
-        )
-        print("x:", plane.x, "y:", plane.y, "heading:", plane.heading_degree)
+        # Draw every aircraft in traffic
+        for ac in traffic.planes:
+            ac.draw(screen, font)
 
         pygame.display.flip()
 
     pygame.quit()
 
-
+if __name__ == "__main__":
+    main()
