@@ -15,8 +15,8 @@ class Aircraft:
     MIN_ALTITUDE = 0
     
     # max/min vertical speed limits 
-    MAX_VERTICAL_SPEED = 3000     # climb max ft/min
-    MIN_VERTICAL_SPEED = -3000    # descent max ft/min
+    MAX_VERTICAL_SPEED = 3000    
+    MIN_VERTICAL_SPEED = -3000    
 
     def __init__(self, x: int, y: int, heading_degrees: int, speed, altitude: int):
         self.x = x
@@ -24,7 +24,12 @@ class Aircraft:
         self.heading_degree = heading_degrees
         self.speed = speed
         self.altitude = altitude
-        self.vertical_speed = 0   # starting VS is level flight (0 ft/min)
+        self.vertical_speed = 0  
+        self.tcas_alert = None
+        self.target_heading = self.heading_degree
+        self.target_altitude = self.altitude
+        self.target_speed = self.speed
+
 
         # random airline callsign
         self.id = random.choice(self.Airline_company) + str(random.randint(100, 999))
@@ -46,6 +51,15 @@ class Aircraft:
         # clamp the altitude between 0 and MAX altitude
         self.altitude = max(self.MIN_ALTITUDE, min(target_altitude, self.MAX_ALTITUDE))
 
+    def command_heading(self,heading_degree):
+        self.target_heading = heading_degree % 360
+
+    def command_altitude(self, target_alti):
+        self.target_altitude = max(self.MIN_ALTITUDE, min(target_alti,self.MAX_ALTITUDE))
+
+    def command_speed(self , target_spd):
+        self.target_speed = max( 50 , min( target_spd , 600))
+
     def update(self, dt: float):
         # Convert aviation heading to math heading (aviation 0° = North)
         rad = math.radians(self.heading_degree - 90)
@@ -60,10 +74,41 @@ class Aircraft:
         # Vertical speed ft/min → ft/sec
         altitude_change_persec = self.vertical_speed / 60
         self.altitude += altitude_change_persec * dt
-
         # Clamp altitude
         self.altitude = max(self.MIN_ALTITUDE, min(self.altitude, self.MAX_ALTITUDE))
 
+
+        heading_diff = (self.target_heading - self.heading_degree)
+        turn_rate = 2.0
+        self.heading_degree += max(-turn_rate * dt , min(turn_rate * dt , heading_diff))
+
+        altitude_diff = (self.target_heading - self.altitude)
+        climb_rate = 1500
+        climb_rate_per = climb_rate / 60
+        self.altitude += max(-climb_rate_per * dt, min(climb_rate_per * dt, altitude_diff))
+
+        speed_diff = (self.target_speed - self.speed)
+        speed_rate = 5 
+        self.speed += max(-speed_rate * dt, min(speed_rate * dt , speed_diff))
+
+
+
+
+    def update_tcas(self, all_aircraft):
+      self.tcas_alert = None  # reset every frame
+      
+      for i in all_aircraft:
+        if i is self:
+            continue  
+
+        alert = self.compute_tcas_alert(i)
+
+        if alert == "RA":
+            self.tcas_alert = "RA"
+            return
+        elif alert == "TA":
+            self.tcas_alert = "TA"
+            
     def change_altitude(self, delta_altitude: int):
         # updates the altitude (example - climb 1000 feet, +1000 to original altitude)
         new_altitude = self.altitude + delta_altitude
@@ -85,6 +130,20 @@ class Aircraft:
         text = f"{self.id} FL{int(self.altitude // 100)}"
         label = font.render(text, True, (0,255,0))
         screen.blit(label, (self.x + 10, self.y - 15))
+
+    def compute_tcas_alert(self,other):
+        dx = self.x - other.x
+        dy = self.y - other.y
+        horizontal = math.sqrt(dx*dx + dy*dy) #calculates the distance 
+        alt_diff = abs(self.altitude - other.altitude) 
+
+        if horizontal <= 80 and alt_diff <= 400:
+            return "RA"
+        
+        if horizontal <= 200 and alt_diff <= 800:
+            return "TA"
+
+        return None
 
     def __str__(self):
         return (

@@ -51,8 +51,7 @@ def main():
 
         # Print distances for conflicts
         for ac in traffic.planes:
-            print(f"{ac.id}: x={ac.x:.1f}, y={ac.y:.1f}, alt={ac.altitude:.0f}")
-        print("-----")
+             print(f"{ac.id} TCAS: {ac.tcas_alert}")
 
 
 
@@ -90,13 +89,15 @@ def main():
         # 4. Center Crosshair
         pygame.draw.line(screen, (0, 100, 0), (center_x, 0), (center_x, HEIGHT))
         pygame.draw.line(screen, (0, 100, 0), (0, center_y), (WIDTH, center_y))
-
       
         for ac in traffic.planes:
+            if ac.tcas_alert == "RA":
+                pygame.draw.circle(screen, (255, 0, 0), (int(ac.x), int(ac.y)), 80, 2)
+            elif ac.tcas_alert == "TA":
+                pygame.draw.circle(screen, (255, 255, 0), (int(ac.x), int(ac.y)), 200, 1)
             ac.draw(screen, font)
 
         pygame.display.flip()
-
     pygame.quit()
 
 

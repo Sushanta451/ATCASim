@@ -15,6 +15,9 @@ class TrafficManager:
     def update(self, dt):
         for i in self.planes: #update each frame
             i.update(dt)
+        
+        for i in self.planes:
+           i.update_tcas(self.planes)
     
     def spawn_random_plane(self, WIDTH, HEIGHT):
     
