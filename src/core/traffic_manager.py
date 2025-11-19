@@ -47,8 +47,8 @@ class TrafficManager:
         y = random.randint(0, HEIGHT)
         heading = random.randint(260, 280)   # going LEFT
 
-      speed = random.randint(120, 200)
-      altitude = random.randint(5000, 35000)
+      speed = random.randint(20, 100)
+      altitude = random.randint(5000, 6000)
 
       return Aircraft(x, y, heading, speed, altitude)
     
